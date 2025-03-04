@@ -7,6 +7,16 @@ let ADMINS = [];
 let USERS = [];
 let COURSES = [];
 
+const authenticateAdmin = (req, res, next) => {
+const {username, password} = req.headers;
+const adminExist = ADMINS.find((a) => a.username === username && a.password ===  password);
+if(adminExist){
+  next();
+}else{
+  res.status(401).json({message : "Admin does Exists"});
+}
+}
+
 // Admin routes
 app.post('/admin/signup', (req, res) => {
   const {username, password} = req.headers;
@@ -19,8 +29,8 @@ app.post('/admin/signup', (req, res) => {
   }
 });
 
-app.post('/admin/login', (req, res) => {
-  // logic to log in admin
+app.post('/admin/login', authenticateAdmin, (req, res) => {
+  res.json({ message: 'Logged in successfully' });
 });
 
 app.post('/admin/courses', (req, res) => {
