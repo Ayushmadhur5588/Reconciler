@@ -49,8 +49,20 @@ app.post('/admin/courses', authenticateAdmin, (req, res) => {
   res.json({ message: 'Course created successfully', courseId: id });
 });
 
-app.put('/admin/courses/:courseId', (req, res) => {
-  // logic to edit a course
+app.put('/admin/courses/:courseId',authenticateAdmin,  (req, res) => {
+  const courseId = parseInt(req.params.courseId);
+  const idx = COURSES.findIndex((c) => c.id === courseId);
+  if(idx !== -1){
+    const { title, description, price, imageLink, published } = req.body;
+   if(title !== undefined) COURSES[idx].title = title;
+   if(description !== undefined) COURSES[idx].description = description;
+   if(price !== undefined) COURSES[idx].price = price;
+   if(imageLink !== undefined) COURSES[idx].imageLink = imageLink;
+   if(published !== undefined) COURSES[idx].published = published;
+    res.json({ message: 'Course updated successfully' });
+  }else{
+    res.status(404).json({message : "Course doesn't exist"});
+  }
 });
 
 app.get('/admin/courses', (req, res) => {
