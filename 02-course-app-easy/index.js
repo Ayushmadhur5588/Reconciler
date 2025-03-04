@@ -6,6 +6,7 @@ app.use(express.json());
 let ADMINS = [];
 let USERS = [];
 let COURSES = [];
+let id = 1;
 
 const authenticateAdmin = (req, res, next) => {
 const {username, password} = req.headers;
@@ -33,8 +34,19 @@ app.post('/admin/login', authenticateAdmin, (req, res) => {
   res.json({ message: 'Logged in successfully' });
 });
 
-app.post('/admin/courses', (req, res) => {
-  // logic to create a course
+app.post('/admin/courses', authenticateAdmin, (req, res) => {
+  const { title, desc, price, imagelink } = req.body;
+
+  const course = {
+    id: ++id, 
+    title,
+    desc,
+    price,
+    imagelink
+  };
+
+  COURSES.push(course);
+  res.json({ message: 'Course created successfully', courseId: id });
 });
 
 app.put('/admin/courses/:courseId', (req, res) => {
