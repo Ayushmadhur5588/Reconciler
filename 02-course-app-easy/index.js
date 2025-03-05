@@ -95,8 +95,8 @@ app.post("/users/login", authenticateUser, (req, res) => {
   res.json({ message: 'Logged in successfully' });
 });
 
-app.get("/users/courses", (req, res) => {
-  // logic to list all courses
+app.get("/users/courses", authenticateUser, (req, res) => {
+  res.json({courses : COURSES});
 });
 
 app.post("/users/courses/:courseId", (req, res) => {
