@@ -81,26 +81,54 @@ app.get("/admin/courses", authenticateAdmin, (req, res) => {
 
 // User routes
 app.post("/users/signup", (req, res) => {
-  const {username , password} = req.headers;
+  const { username, password } = req.headers;
   const existingUser = USERS.find((u) => u.username === username);
-  if(existingUser){
-    res.status(409).json({message : "User already exists"});
-  }else{
-    USERS.push({username, password});
-    res.json({ message: 'User created successfully' });
+  if (existingUser) {
+    res.status(409).json({ message: "User already exists" });
+  } else {
+    const user = {
+      username,
+      password,
+      purchasedCourses: [],
+    };
+    USERS.push(user);
+    res.json({ message: "User created successfully" });
   }
 });
 
 app.post("/users/login", authenticateUser, (req, res) => {
-  res.json({ message: 'Logged in successfully' });
+  res.json({ message: "Logged in successfully" });
 });
 
 app.get("/users/courses", authenticateUser, (req, res) => {
-  res.json({courses : COURSES});
+  res.json({ courses: COURSES });
 });
 
-app.post("/users/courses/:courseId", (req, res) => {
-  // logic to purchase a course
+app.post("/users/courses/:courseId", authenticateUser, (req, res) => {
+  const courseId = parseInt(req.params.courseId);
+  const course = COURSES.find((c) => c.id === courseId);
+
+  // Check if course exists
+  if (!course) {
+    return res.status(404).json({ message: "Course doesn't exist" });
+  }
+
+  // Check if course is published
+  if (!course.published) {
+    return res
+      .status(403)
+      .json({ message: "Course is not published for purchase" });
+  }
+
+  // Find the user (no need to check existence, middleware already did that)
+  const user = USERS.find((u) => u.username === req.headers.username);
+
+  // Initialize purchasedCourses array if it doesn't exist
+  if (!user.purchasedCourses) {
+    user.purchasedCourses = [];
+  }
+  user.purchasedCourses.push(courseId);
+  res.json({ message: "Course purchased successfully" });
 });
 
 app.get("/users/purchasedCourses", (req, res) => {
