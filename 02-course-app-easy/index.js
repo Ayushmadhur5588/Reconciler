@@ -20,6 +20,18 @@ const authenticateAdmin = (req, res, next) => {
   }
 };
 
+const authenticateUser = (req, res, next) => {
+  const { username, password } = req.headers;
+  const userExist = USERS.find(
+    (a) => a.username === username && a.password === password
+  );
+  if (userExist) {
+    next();
+  } else {
+    res.status(401).json({ message: "Unauthorized" });
+  }
+};
+
 // Admin routes
 app.post("/admin/signup", (req, res) => {
   const { username, password } = req.headers;
@@ -79,8 +91,8 @@ app.post("/users/signup", (req, res) => {
   }
 });
 
-app.post("/users/login", (req, res) => {
-  // logic to log in user
+app.post("/users/login", authenticateUser, (req, res) => {
+  res.json({ message: 'Logged in successfully' });
 });
 
 app.get("/users/courses", (req, res) => {
