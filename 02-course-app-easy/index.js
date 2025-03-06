@@ -10,6 +10,7 @@ let id = 1;
 
 const authenticateAdmin = (req, res, next) => {
   const { username, password } = req.headers;
+
   const adminExist = ADMINS.find(
     (a) => a.username === username && a.password === password
   );
@@ -131,8 +132,17 @@ app.post("/users/courses/:courseId", authenticateUser, (req, res) => {
   res.json({ message: "Course purchased successfully" });
 });
 
-app.get("/users/purchasedCourses", (req, res) => {
-  // logic to view purchased courses
+app.get("/users/purchasedCourses", authenticateUser, (req, res) => {
+  const user = USERS.find((u) => u.username === req.headers.username);
+  let puchasedCourseId = user.purchasedCourses;
+
+  let purchasedCourse = [];
+  for(let i = 0; i < COURSES.length; i++){
+    if(puchasedCourseId.indexof(COURSES[i].id) !== -1){
+      purchasedCourse.push(COURSES[i]);
+    }
+  }
+  res.json({"purchasedCourses" : purchasedCourse});
 });
 
 app.listen(3000, () => {
